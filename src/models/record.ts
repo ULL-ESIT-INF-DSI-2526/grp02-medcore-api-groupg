@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
 
 /**
  * @interface PrescribedMedication
@@ -18,14 +18,14 @@ export interface PrescribedMedication {
 export interface RecordDocument extends Document {
   patient: Types.ObjectId;
   doctor: Types.ObjectId;
-  type: 'consulta' | 'ingreso';
+  type: "consulta" | "ingreso";
   startDate: Date;
   endDate?: Date;
   reason: string;
   diagnosis: string;
   medications: PrescribedMedication[];
   totalAmount: number;
-  status: 'abierto' | 'cerrado';
+  status: "abierto" | "cerrado";
 }
 
 /**
@@ -34,7 +34,7 @@ export interface RecordDocument extends Document {
 const PrescribedMedicationSchema = new Schema<PrescribedMedication>({
   medication: {
     type: Schema.Types.ObjectId,
-    ref: 'Medication',
+    ref: "Medication",
     required: true,
   },
   quantity: {
@@ -56,18 +56,18 @@ const PrescribedMedicationSchema = new Schema<PrescribedMedication>({
 const RecordSchema = new Schema<RecordDocument>({
   patient: {
     type: Schema.Types.ObjectId,
-    ref: 'Patient',
+    ref: "Patient",
     required: true,
   },
   doctor: {
     type: Schema.Types.ObjectId,
-    ref: 'Staff',
+    ref: "Staff",
     required: true,
   },
   type: {
     type: String,
     required: true,
-    enum: ['consulta', 'ingreso'],
+    enum: ["consulta", "ingreso"],
   },
   startDate: {
     type: Date,
@@ -98,12 +98,12 @@ const RecordSchema = new Schema<RecordDocument>({
   status: {
     type: String,
     required: true,
-    enum: ['abierto', 'cerrado'],
-    default: 'abierto',
+    enum: ["abierto", "cerrado"],
+    default: "abierto",
   },
 });
 
 /**
  * @description Modelo Mongoose para interactuar con la colección "records".
  */
-export const Record = model<RecordDocument>('Record', RecordSchema);
+export const Record = model<RecordDocument>("Record", RecordSchema);

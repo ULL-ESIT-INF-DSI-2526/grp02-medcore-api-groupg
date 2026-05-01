@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document } from "mongoose";
 
 /**
  * @interface MedicationDocument
@@ -9,23 +9,23 @@ export interface MedicationDocument extends Document {
   activeIngredient: string;
   nationalCode: string;
   form:
-    | 'comprimido'
-    | 'capsula'
-    | 'solucion oral'
-    | 'solucion inyectable'
-    | 'pomada'
-    | 'parche'
-    | 'inhalador'
-    | 'otro';
+    | "comprimido"
+    | "capsula"
+    | "solucion oral"
+    | "solucion inyectable"
+    | "pomada"
+    | "parche"
+    | "inhalador"
+    | "otro";
   dose: number;
   unit: string;
   route:
-    | 'oral'
-    | 'intravenosa'
-    | 'intramuscular'
-    | 'subcutanea'
-    | 'topica'
-    | 'inhalatoria';
+    | "oral"
+    | "intravenosa"
+    | "intramuscular"
+    | "subcutanea"
+    | "topica"
+    | "inhalatoria";
   stock: number;
   price: number;
   requiresPrescription: boolean;
@@ -60,14 +60,14 @@ const MedicationSchema = new Schema<MedicationDocument>({
     type: String,
     required: true,
     enum: [
-      'comprimido',
-      'capsula',
-      'solucion oral',
-      'solucion inyectable',
-      'pomada',
-      'parche',
-      'inhalador',
-      'otro',
+      "comprimido",
+      "capsula",
+      "solucion oral",
+      "solucion inyectable",
+      "pomada",
+      "parche",
+      "inhalador",
+      "otro",
     ],
   },
   dose: {
@@ -84,12 +84,12 @@ const MedicationSchema = new Schema<MedicationDocument>({
     type: String,
     required: true,
     enum: [
-      'oral',
-      'intravenosa',
-      'intramuscular',
-      'subcutanea',
-      'topica',
-      'inhalatoria',
+      "oral",
+      "intravenosa",
+      "intramuscular",
+      "subcutanea",
+      "topica",
+      "inhalatoria",
     ],
   },
   stock: {
@@ -119,4 +119,7 @@ const MedicationSchema = new Schema<MedicationDocument>({
 /**
  * @description Modelo Mongoose para interactuar con la colección "medications".
  */
-export const Medication = model<MedicationDocument>('Medication', MedicationSchema);
+export const Medication = model<MedicationDocument>(
+  "Medication",
+  MedicationSchema,
+);
