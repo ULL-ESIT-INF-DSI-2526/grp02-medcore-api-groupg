@@ -1,43 +1,43 @@
 import { Patient, IPatient } from '../models/patient.js';
 
 /**
- * Clase de servicios que gestiona las operaciones
+ * Clase de servicio para gestionar operaciones de pacientes
  */
 export class PatientService {
   /**
-   * Crea un nuevo paciente en la base de
-   * @param data Dato de objeto del paciente
-   * @returns El documento creado 
+   * Crea un nuevo paciente en la base de datos
+   * @param data Datos del paciente
+   * @returns Documento del paciente creado
    */
-  public async create(data: Partial<IPatient>): Promise<IPatient> {
-    return Patient.create(data);
+  static async create(data: Partial<IPatient>): Promise<IPatient> {
+    return await Patient.create(data);
   }
 
   /**
-   * Encuentra el paciente basado en una consulta
-   * @param query Criterio de busqueda
-   * @returns Array de pacientes
+   * Busca pacientes segun un filtro
+   * @param query Criterios de busqueda
+   * @returns Lista de pacientes encontrados
    */
-  public async find(query: object): Promise<IPatient[]> {
+  static async find(query: object): Promise<IPatient[]> {
     return await Patient.find(query);
   }
 
   /**
-   * Encuentra un unico paciente mediante un ID
-   * @param id MongoDB ObjectId
-   * @returns Documento del paciente o null
+   * Busca un paciente por su ID
+   * @param id Identificador de la base de datos
+   * @returns Paciente encontrado o null
    */
-  public async findById(id: string): Promise<IPatient | null> {
+  static async findById(id: string): Promise<IPatient | null> {
     return await Patient.findById(id);
   }
 
   /**
-   * Actualiza a un paciente mediante una consulta
+   * Actualiza un paciente segun el filtro
    * @param query Criterio de busqueda
-   * @param data Dato para actualizar
-   * @returns Actualiza el paciente o null
+   * @param data Datos a actualizar
+   * @returns Paciente actualizado o null
    */
-  public async update(query: object, data: Partial<IPatient>): Promise<IPatient | null> {
+  static async update(query: object, data: Partial<IPatient>): Promise<IPatient | null> {
     return await Patient.findOneAndUpdate(query, data, {
       new: true,
       runValidators: true,
@@ -45,11 +45,11 @@ export class PatientService {
   }
 
   /**
-   * Borra al paciente por busuqeda
-   * @param query Criterio de busuqeda
-   * @returns Documento eliminado o null
+   * Elimina un paciente segun el filtro
+   * @param query Criterio de busqueda
+   * @returns Paciente eliminado o null
    */
-  public async delete(query: object): Promise<IPatient | null> {
+  static async delete(query: object): Promise<IPatient | null> {
     return await Patient.findOneAndDelete(query);
   }
 }
