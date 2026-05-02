@@ -2,7 +2,7 @@ import { MedicationDocument } from "../models/medication.js";
 
 /**
  * @function calculateTotal
- * @description Calcula el importe total de los medicamentos prescritos.
+ * Calcula el importe total de los medicamentos prescritos.
  * @param meds Lista de objetos con medicamento y cantidad.
  * @returns Importe total en euros.
  */

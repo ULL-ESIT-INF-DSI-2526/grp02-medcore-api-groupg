@@ -1,50 +1,59 @@
-import { Medication } from '../models/medication.js';
-import { isExpired } from '../utils/dateUtils.js';
+import { Medication, MedicationDocument } from "../models/medication.js";
+import { isExpired } from "../utils/dateUtils.js";
 
 /**
  * @class MedicationService
- * @description Contiene la lógica de negocio relacionada con medicamentos.
+ * Contiene la lógica de negocio relacionada con medicamentos.
  */
 export class MedicationService {
   /**
-   * @description Crea un nuevo medicamento.
+   * Crea un nuevo medicamento.
+   * @returns El documento creado de tipo MedicationDocument.
    */
-  static async create(data: any) {
+  static async create(data: Partial<MedicationDocument>): Promise<MedicationDocument> {
     return Medication.create(data);
   }
 
   /**
-   * @description Obtiene todos los medicamentos.
+   * Obtiene todos los medicamentos.
+   * @returns Lista de documentos MedicationDocument.
    */
-  static async getAll() {
+  static async getAll(): Promise<MedicationDocument[]> {
     return Medication.find();
   }
 
   /**
-   * @description Obtiene un medicamento por ID.
+   * Obtiene un medicamento por ID.
+   * @returns El documento encontrado o null.
    */
-  static async getById(id: string) {
+  static async getById(id: string): Promise<MedicationDocument | null> {
     return Medication.findById(id);
   }
 
   /**
-   * @description Actualiza un medicamento.
+   * Actualiza un medicamento.
+   * @returns El documento actualizado o null.
    */
-  static async update(id: string, data: any) {
+  static async update(
+    id: string,
+    data: Partial<MedicationDocument>
+  ): Promise<MedicationDocument | null> {
     return Medication.findByIdAndUpdate(id, data, { new: true });
   }
 
   /**
-   * @description Elimina un medicamento.
+   * Elimina un medicamento.
+   * @returns El documento eliminado o null.
    */
-  static async delete(id: string) {
+  static async delete(id: string): Promise<MedicationDocument | null> {
     return Medication.findByIdAndDelete(id);
   }
 
   /**
-   * @description Verifica si un medicamento está caducado.
+   * Verifica si un medicamento está caducado.
+   * @returns true si está caducado.
    */
-  static isExpired(medication: any): boolean {
+  static isExpired(medication: MedicationDocument): boolean {
     return isExpired(medication.expirationDate);
   }
 }

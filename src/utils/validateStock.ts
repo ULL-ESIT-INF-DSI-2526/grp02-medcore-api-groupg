@@ -2,7 +2,7 @@ import { MedicationDocument } from "../models/medication.js";
 
 /**
  * @function validateStock
- * @description Comprueba si un medicamento tiene stock suficiente.
+ * Comprueba si un medicamento tiene stock suficiente.
  * @param medication Documento del medicamento.
  * @param quantity Cantidad requerida.
  * @returns true si hay stock suficiente.

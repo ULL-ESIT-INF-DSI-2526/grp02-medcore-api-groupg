@@ -1,18 +1,39 @@
-import { Record } from '../models/record.js';
-import { Medication } from '../models/medication.js';
-import { calculateTotal } from '../utils/calculateTotal.js';
-import { validateStock } from '../utils/validateStock.js';
+import { Record, RecordDocument } from "../models/record.js";
+import { Medication, MedicationDocument } from "../models/medication.js";
+import { calculateTotal } from "../utils/calculateTotal.js";
+import { validateStock } from "../utils/validateStock.js";
+
+/**
+ * Datos necesarios para crear un registro médico.
+ */
+interface CreateRecordInput {
+  patient: string;
+  doctor: string;
+  medications: Array<{
+    medication: string;
+    quantity: number;
+  }>;
+  notes?: string;
+}
+
+/**
+ * Medicamento procesado para el cálculo del importe.
+ */
+interface ProcessedMedication {
+  medication: MedicationDocument;
+  quantity: number;
+}
 
 /**
  * @class RecordService
- * @description Lógica de negocio para registros médicos.
+ * Lógica de negocio para registros médicos.
  */
 export class RecordService {
   /**
-   * @description Crea un registro médico con validaciones de stock y cálculo de importe.
+   * Crea un registro médico con validaciones de stock y cálculo de importe.
    */
-  static async create(data: any) {
-    const meds = [];
+  static async create(data: CreateRecordInput): Promise<RecordDocument> {
+    const meds: ProcessedMedication[] = [];
 
     for (const item of data.medications) {
       const medication = await Medication.findById(item.medication);
@@ -40,16 +61,16 @@ export class RecordService {
   }
 
   /**
-   * @description Obtiene todos los registros.
+   * Obtiene todos los registros.
    */
-  static async getAll() {
-    return Record.find().populate('patient doctor medications.medication');
+  static async getAll(): Promise<RecordDocument[]> {
+    return Record.find().populate("patient doctor medications.medication");
   }
 
   /**
-   * @description Cierra un registro médico.
+   * Cierra un registro médico.
    */
-  static async close(id: string) {
-    return Record.findByIdAndUpdate(id, { status: 'cerrado' }, { new: true });
+  static async close(id: string): Promise<RecordDocument | null> {
+    return Record.findByIdAndUpdate(id, { status: "cerrado" }, { new: true });
   }
 }
