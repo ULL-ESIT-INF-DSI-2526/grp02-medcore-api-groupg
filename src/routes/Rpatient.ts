@@ -1,15 +1,18 @@
-import { Router } from 'express'
-import { PatientController } from '../controllers/Cpatient.js'
+import { Router } from 'express';
+import { PatientController } from '../controllers/Cpatient.js';
 
-const router = Router()
-const controller = new PatientController()
+const router = Router();
 
-router.post('/', controller.create)
-router.get('/', controller.getByQuery)
-router.get('/:id', controller.getById)
-router.patch('/', controller.updateByQuery)
-router.patch('/:id', controller.updateById)
-router.delete('/', controller.deleteByQuery)
-router.delete('/:id', controller.deleteById)
+/**
+ * Definicion de rutas para el recurso de pacientes
+ */
 
-export default router
+router.post('/', PatientController.create);
+router.get('/', PatientController.getByQuery);
+router.get('/:id', PatientController.getById);
+router.patch('/', PatientController.updateByQuery);
+router.patch('/:id', PatientController.updateById);
+router.delete('/', PatientController.deleteByQuery);
+router.delete('/:id', PatientController.deleteById);
+
+export default router;
