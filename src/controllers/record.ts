@@ -1,12 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
-import { RecordService } from '../services/record.js';
+import { Request, Response, NextFunction } from "express";
+import { RecordService } from "../services/record.js";
 
 /**
  * @class RecordController
  * Controlador para gestionar registros médicos.
  */
 export class RecordController {
-  static async create(req: Request, res: Response, next: NextFunction) {
+  static async create(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const record = await RecordService.create(req.body);
       res.status(201).json(record);
@@ -15,7 +19,11 @@ export class RecordController {
     }
   }
 
-  static async getAll(req: Request, res: Response, next: NextFunction) {
+  static async getAll(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const records = await RecordService.getAll();
       res.json(records);
