@@ -1,15 +1,9 @@
-import { MedicationDocument } from "../models/medication.js";
-
 /**
- * @function validateStock
- * @description Comprueba si un medicamento tiene stock suficiente.
- * @param medication Documento del medicamento.
- * @param quantity Cantidad requerida.
- * @returns true si hay stock suficiente.
+ * @function isExpired
+ * @description Determina si una fecha de caducidad ya ha pasado.
+ * @param date Fecha a evaluar.
+ * @returns true si la fecha ya expiró.
  */
-export function validateStock(
-  medication: MedicationDocument,
-  quantity: number,
-): boolean {
-  return medication.stock >= quantity;
+export function isExpired(date: Date): boolean {
+  return date.getTime() < Date.now();
 }
