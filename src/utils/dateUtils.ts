@@ -1,6 +1,6 @@
 /**
  * @function isExpired
- * @description Determina si una fecha de caducidad ya ha pasado.
+ * Determina si una fecha de caducidad ya ha pasado.
  * @param date Fecha a evaluar.
  * @returns true si la fecha ya expiró.
  */
