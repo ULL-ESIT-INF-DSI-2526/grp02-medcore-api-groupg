@@ -31,7 +31,15 @@ export class MedicationService {
   }
 
   /**
-   * Actualiza un medicamento.
+   * Obtiene medicamentos mediante query string.
+   * Permite buscar por name, activeIngredient o nationalCode.
+   */
+  static async getByQuery(query: any): Promise<MedicationDocument[]> {
+    return Medication.find(query);
+  }
+
+  /**
+   * Actualiza un medicamento por ID.
    * @returns El documento actualizado o null.
    */
   static async update(
@@ -42,11 +50,30 @@ export class MedicationService {
   }
 
   /**
-   * Elimina un medicamento.
+   * Actualiza un medicamento mediante query string.
+   * @returns El documento actualizado o null.
+   */
+  static async updateByQuery(
+    query: any,
+    data: Partial<MedicationDocument>
+  ): Promise<MedicationDocument | null> {
+    return Medication.findOneAndUpdate(query, data, { new: true });
+  }
+
+  /**
+   * Elimina un medicamento por ID.
    * @returns El documento eliminado o null.
    */
   static async delete(id: string): Promise<MedicationDocument | null> {
     return Medication.findByIdAndDelete(id);
+  }
+
+  /**
+   * Elimina un medicamento mediante query string.
+   * @returns El documento eliminado o null.
+   */
+  static async deleteByQuery(query: any): Promise<MedicationDocument | null> {
+    return Medication.findOneAndDelete(query);
   }
 
   /**

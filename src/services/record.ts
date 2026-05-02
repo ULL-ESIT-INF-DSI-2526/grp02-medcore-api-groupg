@@ -68,9 +68,62 @@ export class RecordService {
   }
 
   /**
+   * Obtiene un registro por ID.
+   */
+  static async getById(id: string): Promise<RecordDocument | null> {
+    return Record.findById(id).populate("patient doctor medications.medication");
+  }
+
+  /**
+   * Obtiene registros por DNI del paciente.
+   */
+  static async getByQuery(query: any): Promise<RecordDocument[]> {
+    return Record.find(query).populate("patient doctor medications.medication");
+  }
+
+  /**
+   * Obtiene registros por rango de fechas y tipo.
+   */
+  static async getByDateRange(
+    startDate: string,
+    endDate: string,
+    type?: string
+  ): Promise<RecordDocument[]> {
+    const filter: any = {
+      createdAt: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      },
+    };
+
+    if (type) filter.type = type;
+
+    return Record.find(filter).populate("patient doctor medications.medication");
+  }
+
+  /**
+   * Actualiza un registro por ID.
+   */
+  static async update(
+    id: string,
+    data: Partial<RecordDocument>
+  ): Promise<RecordDocument | null> {
+    return Record.findByIdAndUpdate(id, data, { new: true }).populate(
+      "patient doctor medications.medication"
+    );
+  }
+
+  /**
    * Cierra un registro médico.
    */
   static async close(id: string): Promise<RecordDocument | null> {
     return Record.findByIdAndUpdate(id, { status: "cerrado" }, { new: true });
+  }
+
+  /**
+   * Elimina un registro médico.
+   */
+  static async delete(id: string): Promise<RecordDocument | null> {
+    return Record.findByIdAndDelete(id);
   }
 }
