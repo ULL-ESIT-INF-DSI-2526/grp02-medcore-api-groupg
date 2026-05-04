@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 /**
  * @function connectDB
@@ -7,6 +9,11 @@ import mongoose from "mongoose";
 export async function connectDB(): Promise<void> {
   const MONGO_URI =
     process.env.MONGO_URI || "mongodb://127.0.0.1:27017/medcore";
+
+    mongoose.connection.on("error", (err) => {
+      console.error("Mongoose connection error:", err);
+    });
+    
 
   try {
     await mongoose.connect(MONGO_URI);
