@@ -2,7 +2,7 @@ import { Schema, model, Document } from "mongoose";
 
 /**
  * @interface MedicationDocument
- * @description Representa un medicamento almacenado en la base de datos.
+ * Representa un medicamento almacenado en la base de datos.
  */
 export interface MedicationDocument extends Document {
   name: string;
@@ -34,7 +34,7 @@ export interface MedicationDocument extends Document {
 }
 
 /**
- * @description Esquema Mongoose para la colección "medications".
+ * Esquema Mongoose para la colección "medications".
  * Incluye validaciones estrictas.
  */
 const MedicationSchema = new Schema<MedicationDocument>({
@@ -117,7 +117,7 @@ const MedicationSchema = new Schema<MedicationDocument>({
 });
 
 /**
- * @description Modelo Mongoose para interactuar con la colección "medications".
+ * Modelo Mongoose para interactuar con la colección "medications".
  */
 export const Medication = model<MedicationDocument>(
   "Medication",

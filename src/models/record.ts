@@ -2,7 +2,7 @@ import { Schema, model, Document, Types } from "mongoose";
 
 /**
  * @interface PrescribedMedication
- * @description Representa un medicamento prescrito dentro de un registro médico.
+ * Representa un medicamento prescrito dentro de un registro médico.
  */
 export interface PrescribedMedication {
   medication: Types.ObjectId;
@@ -12,7 +12,7 @@ export interface PrescribedMedication {
 
 /**
  * @interface RecordDocument
- * @description Representa un registro médico (consulta o ingreso).
+ * Representa un registro médico (consulta o ingreso).
  * Contiene referencias a paciente, médico, medicamentos y datos clínicos.
  */
 export interface RecordDocument extends Document {
@@ -29,7 +29,7 @@ export interface RecordDocument extends Document {
 }
 
 /**
- * @description Subesquema para medicamentos prescritos dentro de un registro.
+ * Subesquema para medicamentos prescritos dentro de un registro.
  */
 const PrescribedMedicationSchema = new Schema<PrescribedMedication>({
   medication: {
@@ -50,7 +50,7 @@ const PrescribedMedicationSchema = new Schema<PrescribedMedication>({
 });
 
 /**
- * @description Esquema principal para la colección "records".
+ * Esquema principal para la colección "records".
  * Incluye referencias, fechas automáticas y validaciones clínicas.
  */
 const RecordSchema = new Schema<RecordDocument>({
@@ -104,6 +104,6 @@ const RecordSchema = new Schema<RecordDocument>({
 });
 
 /**
- * @description Modelo Mongoose para interactuar con la colección "records".
+ * Modelo Mongoose para interactuar con la colección "records".
  */
 export const Record = model<RecordDocument>("Record", RecordSchema);
