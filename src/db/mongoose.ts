@@ -1,15 +1,26 @@
-import { connect } from 'mongoose';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
-// Usamos la variable de entorno que definimos en dev.env
-const mongodbUrl = process.env.MONGODB_URL;
+/**
+ * @function connectDB
+ * Establece la conexión con MongoDB usando Mongoose.
+ */
+export async function connectDB(): Promise<void> {
+  const MONGO_URI =
+    process.env.MONGO_URI || "mongodb://127.0.0.1:27017/medcore";
 
-if (!mongodbUrl) {
-  console.error('Error: La variable MONGODB_URL no está definida');
-} else {
+    console.log(process.env.MONGO_URI);
+
+    mongoose.connection.on("error", (err) => {
+      console.error("Mongoose connection error:", err);
+    });
+    
+
   try {
-    await connect(mongodbUrl);
-    console.log('Conexión a MongoDB Atlas establecida con éxito');
-  } catch (error) {
-    console.error('Error al conectar a MongoDB Atlas:', error);
+    await mongoose.connect(MONGO_URI);
+    console.log("Connected to MongoDB");
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
   }
 }

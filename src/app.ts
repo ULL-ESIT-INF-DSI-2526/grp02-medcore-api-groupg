@@ -1,5 +1,4 @@
 import express from 'express'
-import './db/mongoose.js'
 import patientRouter from './routes/Rpatient.js' 
 import staffRouter from './routes/Rstaff.js'
 

@@ -4,15 +4,10 @@ import { MedicationController } from "../controllers/medication.js";
 const router = Router();
 
 router.post("/", MedicationController.create);
-
-router.get("/", MedicationController.getByQuery);
-router.get("/all", MedicationController.getAll);
-router.get("/:id", MedicationController.getById);
-
-router.put("/:id", MedicationController.update);
-router.put("/", MedicationController.updateByQuery);
-
-router.delete("/:id", MedicationController.delete);
-router.delete("/", MedicationController.deleteByQuery);
+router.get("/", MedicationController.find);
+router.get("/:id", MedicationController.findById);
+router.put("/", MedicationController.update);
+router.delete("/", MedicationController.delete);
+router.get("/:id/expired", MedicationController.isExpired);
 
 export default router;

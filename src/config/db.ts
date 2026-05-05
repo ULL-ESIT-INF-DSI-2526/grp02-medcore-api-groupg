@@ -10,6 +10,8 @@ export async function connectDB(): Promise<void> {
   const MONGO_URI =
     process.env.MONGO_URI || "mongodb://127.0.0.1:27017/medcore";
 
+    console.log(process.env.MONGO_URI);
+
     mongoose.connection.on("error", (err) => {
       console.error("Mongoose connection error:", err);
     });
