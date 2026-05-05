@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import { QueryFilter } from 'mongoose';
+import { IStaff } from '../models/staff.js';
 import { StaffService } from '../services/Sstaff.js';
 
 /**
@@ -31,10 +33,10 @@ export class StaffController {
       const name = req.query.name as string;
       const specialty = req.query.specialty as string;
       const collegiateNumber = req.query.collegiateNumber as string;
-      const mongoQuery: any = {};
+      const mongoQuery: QueryFilter<IStaff> = {};
 
       if (name) mongoQuery.fullName = new RegExp(name, 'i');
-      if (specialty) mongoQuery.specialty = specialty;
+      if (specialty) mongoQuery.specialty = specialty as IStaff['specialty'];
       if (collegiateNumber) mongoQuery.collegiateNumber = collegiateNumber;
 
       const results = await StaffService.find(mongoQuery);
