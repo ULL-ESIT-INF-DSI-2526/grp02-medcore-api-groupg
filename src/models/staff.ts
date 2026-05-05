@@ -74,14 +74,17 @@ const staffSchema = new Schema<IStaff>({
   assignedConsultation: {
     type: String,
     required: true,
+    trim: true,
   },
   yearsOfExperience: {
     type: Number,
     min: 0,
+    trim: true,
   },
   departmentContact: {
     type: String,
     required: true,
+    trim: true,
   },
   status: {
     type: String,
