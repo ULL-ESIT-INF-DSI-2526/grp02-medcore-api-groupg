@@ -1,136 +1,60 @@
-import { Request, Response, NextFunction } from "express";
-import { MedicationService } from "../services/medication.js";
+import { QueryFilter, UpdateQuery } from 'mongoose';
+import { Medication, MedicationDocument } from "../models/medication.js";
+import { isExpired } from "../utils/dateUtils.js";
 
 /**
- * @class MedicationController
- * Controlador para gestionar medicamentos.
+ * @class MedicationService
+ * Contiene la loica de negocio relacionada con medicamentos
  */
-export class MedicationController {
-
-  static async create(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const medication = await MedicationService.create(req.body);
-      res.status(201).json(medication);
-    } catch (err) {
-      next(err);
-    }
+export class MedicationService {
+  /**
+   * Crea un nuevo medicamento
+   * @returns El documento creado de tipo MedicationDocument
+   */
+  static async create(data: Partial<MedicationDocument>): Promise<MedicationDocument> {
+    return await Medication.create(data);
   }
 
-  static async getAll(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const meds = await MedicationService.getAll();
-      res.json(meds);
-    } catch (err) {
-      next(err);
-    }
+  /**
+   * Obtiene medicamentos mediante query string
+   * Permite buscar por name, activeIngredient o nationalCode
+   */
+  static async find(query: QueryFilter<MedicationDocument>): Promise<MedicationDocument[]> {
+    return await Medication.find(query);
   }
 
-  static async getById(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const id = req.params.id as string;
-      const med = await MedicationService.getById(id);
-      if (!med) {
-        res.status(404).json({ error: "Medicamento no encontrado" });
-        return;
-      }
-      res.json(med);
-    } catch (err) {
-      next(err);
-    }
+  /**
+   * Obtiene un medicamento por ID.
+   * @returns El documento encontrado o null
+   */
+  static async findById(id: string): Promise<MedicationDocument | null> {
+    return await Medication.findById(id);
   }
 
-  static async getByQuery(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const meds = await MedicationService.getByQuery(req.query);
-      res.json(meds);
-    } catch (err) {
-      next(err);
-    }
+  /**
+   * Actualiza un medicamento mediante query string
+   * @returns El documento actualizado o null
+   */
+  static async update(query: QueryFilter<MedicationDocument>,data: UpdateQuery<MedicationDocument>): Promise<MedicationDocument | null> {
+    return await Medication.findOneAndUpdate(query, data, { 
+      new: true,
+      runValidators: true 
+    });
   }
 
-  static async update(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const id = req.params.id as string;
-      const med = await MedicationService.update(id, req.body);
-      if (!med) {
-        res.status(404).json({ error: "Medicamento no encontrado" });
-        return;
-      }
-      res.json(med);
-    } catch (err) {
-      next(err);
-    }
+  /**
+   * Elimina un medicamento mediante query string
+   * @returns El documento eliminado o null
+   */
+  static async delete(query: QueryFilter<MedicationDocument>): Promise<MedicationDocument | null> {
+    return await Medication.findOneAndDelete(query);
   }
 
-  static async updateByQuery(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const med = await MedicationService.updateByQuery(req.query, req.body);
-      if (!med) {
-        res.status(404).json({ error: "Medicamento no encontrado" });
-        return;
-      }
-      res.json(med);
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  static async delete(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const id = req.params.id as string;
-      const med = await MedicationService.delete(id);
-      if (!med) {
-        res.status(404).json({ error: "Medicamento no encontrado" });
-        return;
-      }
-      res.json({ message: "Medicamento eliminado", med });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  static async deleteByQuery(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const med = await MedicationService.deleteByQuery(req.query);
-      if (!med) {
-        res.status(404).json({ error: "Medicamento no encontrado" });
-        return;
-      }
-      res.json({ message: "Medicamento eliminado", med });
-    } catch (err) {
-      next(err);
-    }
+  /**
+   * Verifica si un medicamento esta caducado
+   * @returns true si está caducado
+   */
+  static isExpired(medication: MedicationDocument): boolean {
+    return isExpired(medication.expirationDate);
   }
 }

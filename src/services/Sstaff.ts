@@ -1,3 +1,4 @@
+import { QueryFilter, UpdateQuery } from 'mongoose';
 import { Staff, IStaff } from '../models/staff.js';
 
 /**
@@ -18,7 +19,7 @@ export class StaffService {
    * @param query Filtro de busqueda
    * @returns Lista de miembros encontrados
    */
-  static async find(query: object): Promise<IStaff[]> {
+  static async find(query: QueryFilter<IStaff>): Promise<IStaff[]> {
     return await Staff.find(query);
   }
 
@@ -37,7 +38,7 @@ export class StaffService {
    * @param data Nuevos datos
    * @returns Documento actualizado o null
    */
-  static async update(query: object, data: Partial<IStaff>): Promise<IStaff | null> {
+  static async update(query: QueryFilter<IStaff>,data: UpdateQuery<IStaff>,): Promise<IStaff | null> {
     return await Staff.findOneAndUpdate(query, data, {
       new: true,
       runValidators: true,
@@ -49,7 +50,7 @@ export class StaffService {
    * @param query Criterio de busqueda
    * @returns Documento eliminado o null
    */
-  static async delete(query: object): Promise<IStaff | null> {
+  static async delete(query: QueryFilter<IStaff>): Promise<IStaff | null> {
     return await Staff.findOneAndDelete(query);
   }
 }

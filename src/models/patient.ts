@@ -34,6 +34,7 @@ const patientSchema = new Schema<IPatient>({
   birthDate: {
     type: Date,
     required: true,
+    trim: true
   },
   idNumber: {
     type: String,
@@ -56,15 +57,18 @@ const patientSchema = new Schema<IPatient>({
     address: {
       type: String,
       required: true,
+      trim: true,
     },
     phone: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
+      trim: true,
     },
   },
   allergies: {
