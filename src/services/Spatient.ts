@@ -1,3 +1,4 @@
+import { QueryFilter, UpdateQuery } from 'mongoose';
 import { Patient, IPatient } from '../models/patient.js';
 
 /**
@@ -18,7 +19,7 @@ export class PatientService {
    * @param query Criterios de busqueda
    * @returns Lista de pacientes encontrados
    */
-  static async find(query: object): Promise<IPatient[]> {
+  static async find(query: QueryFilter<IPatient>): Promise<IPatient[]> {
     return await Patient.find(query);
   }
 
@@ -37,7 +38,7 @@ export class PatientService {
    * @param data Datos a actualizar
    * @returns Paciente actualizado o null
    */
-  static async update(query: object, data: Partial<IPatient>): Promise<IPatient | null> {
+  static async update(query: QueryFilter<IPatient>,data: UpdateQuery<IPatient>,): Promise<IPatient | null> {
     return await Patient.findOneAndUpdate(query, data, {
       new: true,
       runValidators: true,
@@ -49,7 +50,7 @@ export class PatientService {
    * @param query Criterio de busqueda
    * @returns Paciente eliminado o null
    */
-  static async delete(query: object): Promise<IPatient | null> {
+  static async delete(query: QueryFilter<IPatient>): Promise<IPatient | null> {
     return await Patient.findOneAndDelete(query);
   }
 }

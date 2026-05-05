@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import { QueryFilter } from 'mongoose';
+import { IPatient } from '../models/patient.js';
 import { PatientService } from '../services/Spatient.js';
 
 /**
@@ -30,7 +32,7 @@ export class PatientController {
     try {
       const name = req.query.name as string;
       const idNumber = req.query.idNumber as string;
-      const mongoQuery: any = {};
+      const mongoQuery: QueryFilter<IPatient> = {};
 
       if (name) mongoQuery.fullName = new RegExp(name, 'i');
       if (idNumber) mongoQuery.idNumber = idNumber;
