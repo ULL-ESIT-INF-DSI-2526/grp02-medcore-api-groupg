@@ -1,16 +1,18 @@
-import express from "express";
-import { connectDB } from "./config/db.js";
-import medicationRoutes from "./routes/medication.js";
-import recordRoutes from "./routes/record.js";
+import express from 'express'
+import './db/mongoose.js'
+import patientRouter from './routes/Rpatient.js' 
+import staffRouter from './routes/Rstaff.js'
 
-const app = express();
+export const app = express()
+app.use(express.json())
 
-app.use(express.json());
+app.use('/patients', patientRouter)
+app.use('/staff', staffRouter)
 
-// Conectar a MongoDB
-connectDB();
-
-app.use("/medications", medicationRoutes);
-app.use("/records", recordRoutes);
-
-export default app;
+/**
+ * Manejador para rutas no implementadas
+ * Devuelve un estado 501 
+ */
+app.all('/{*splat}', (_, res) => {
+  res.status(501).send()
+})
