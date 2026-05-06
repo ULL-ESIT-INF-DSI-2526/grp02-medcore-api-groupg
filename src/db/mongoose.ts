@@ -1,26 +1,12 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
-
 /**
- * @function connectDB
- * Establece la conexión con MongoDB usando Mongoose.
+ * Conexión a MongoDB usando Mongoose.
+ * Igual que el ejemplo del profesor: se ejecuta al importar.
  */
-export async function connectDB(): Promise<void> {
-  const MONGO_URI =
-    process.env.MONGO_URI || "mongodb://127.0.0.1:27017/medcore";
+import { connect } from "mongoose";
 
-    console.log(process.env.MONGO_URI);
-
-    mongoose.connection.on("error", (err) => {
-      console.error("Mongoose connection error:", err);
-    });
-    
-
-  try {
-    await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB");
-  } catch (err) {
-    console.error("Error connecting to MongoDB:", err);
-  }
+try {
+  await connect("mongodb://127.0.0.1:27017/medcore");
+  console.log("Connection to MongoDB server established");
+} catch (error) {
+  console.log(error);
 }
