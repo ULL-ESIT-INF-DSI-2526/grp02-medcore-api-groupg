@@ -6,9 +6,10 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "vitest run",
+    "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/index.js\"",
+    "test": "env-cmd -f ./config/test.env vitest run",
     "doc": "typedoc",
-    "coverage": "vitest run --coverage"
+    "coverage": "env-cmd -f ./config/test.env vitest run --coverage --coverage.include **/src/*"
   },
   "repository": {
     "type": "git",
