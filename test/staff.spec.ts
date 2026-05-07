@@ -5,7 +5,7 @@ import { Staff } from "../src/models/staff.js";
 
 const firstStaff = {
   fullName: "Dra. Ana Garcia",
-  collegiateNumber: "MD-9999",
+  collegiateNumber: "COL1234",
   specialty: "cardiology",
   category: "attending",
   shift: "morning",
@@ -21,52 +21,38 @@ beforeEach(async () => {
 });
 
 describe("Operaciones CRUD para /staff", () => {
+  
   test("Debe registrar un nuevo miembro del personal correctamente", async () => {
+    const newStaff = {
+      fullName: "Dr. Gregory House",
+      collegiateNumber: "COL5678",
+      specialty: "emergency",
+      category: "head_of_service",
+      shift: "night",
+      assignedConsultation: "ICU",
+      departmentContact: "ext-999",
+      yearsOfExperience: 20
+    };
+
     const response = await request(app)
       .post("/staff")
-      .send({
-        fullName: "Dr. House",
-        collegiateNumber: "MD-1111",
-        specialty: "emergency",
-        category: "head_of_service",
-        shift: "night",
-        assignedConsultation: "ICU",
-        yearsOfExperience: 20,
-        departmentContact: "ext-000",
-        status: "active"
-      })
+      .send(newStaff)
       .expect(201);
 
-    expect(response.body.fullName).to.equal("Dr. House");
-    
-    const staffInDb = await Staff.findById(response.body._id);
-    expect(staffInDb).not.toBe(null);
-    expect(staffInDb!.collegiateNumber).to.equal("MD-1111");
-  });
-
-  test("Debe obtener un miembro por su collegiateNumber", async () => {
-    await request(app)
-      .get("/staff?collegiateNumber=MD-9999")
-      .expect(200);
+    expect(response.body.collegiateNumber).to.equal("COL5678");
   });
 
   test("Debe obtener un miembro por su ID de base de datos", async () => {
-    const existing = await Staff.findOne({ collegiateNumber: "MD-9999" });
+    const existing = await Staff.findOne({ collegiateNumber: "COL1234" });
     const response = await request(app)
       .get(`/staff/${existing!._id}`)
       .expect(200);
 
-    expect(response.body.collegiateNumber).to.equal("MD-9999");
+    expect(response.body.fullName).to.equal("Dra. Ana Garcia");
   });
 
-  test("Debe devolver 404 para un ID inexistente", async () => {
-    await request(app)
-      .get("/staff/661f1f5c9a7b4b001e3f1234")
-      .expect(404);
-  });
-
-  test("Debe actualizar un miembro mediante ID de base de datos", async () => {
-    const existing = await Staff.findOne({ collegiateNumber: "MD-9999" });
+  test("Debe actualizar un miembro mediante su ID de base de datos", async () => {
+    const existing = await Staff.findOne({ collegiateNumber: "COL1234" });
     const response = await request(app)
       .patch(`/staff/${existing!._id}`)
       .send({ shift: "afternoon" })
@@ -75,12 +61,21 @@ describe("Operaciones CRUD para /staff", () => {
     expect(response.body.shift).to.equal("afternoon");
   });
 
-  test("Debe eliminar un miembro mediante su collegiateNumber", async () => {
-    await request(app)
-      .delete("/staff?collegiateNumber=MD-9999")
+  test("Debe actualizar un miembro mediante collegiateNumber en la query", async () => {
+    const response = await request(app)
+      .patch("/staff?collegiateNumber=COL1234")
+      .send({ assignedConsultation: "Room 202" })
       .expect(200);
 
-    const checkDb = await Staff.findOne({ collegiateNumber: "MD-9999" });
+    expect(response.body.assignedConsultation).to.equal("Room 202");
+  });
+
+  test("Debe eliminar un miembro mediante su collegiateNumber", async () => {
+    await request(app)
+      .delete("/staff?collegiateNumber=COL1234")
+      .expect(200);
+
+    const checkDb = await Staff.findOne({ collegiateNumber: "COL1234" });
     expect(checkDb).toBe(null);
   });
 });

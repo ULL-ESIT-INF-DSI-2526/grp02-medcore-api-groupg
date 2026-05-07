@@ -1,16 +1,11 @@
 import express from "express";
-import { Staff } from "../models/staff.js";
+import { Staff, IStaff } from "../models/staff.js";
 
 export const staffRouter = express.Router();
 
 export interface StaffQuery {
   fullName?: string;
-  collegiateNumber?: string;
-  specialty?: string;
-  category?: string;
-  shift?: string;
-  assignedConsultation?: string;
-  status?: string;
+  specialty?: IStaff['specialty'];
 }
 
 
@@ -68,8 +63,11 @@ staffRouter.get("/staff", async (req, res) => {
     const { fullName, specialty } = req.query;
     const query: StaffQuery = {};
     if (fullName) query.fullName = fullName as string;
-    if (specialty) query.specialty = specialty as string;
-    const staff = await Staff.find(query as any);
+    if (specialty) query.specialty = specialty as StaffQuery['specialty'];
+    const staff = await Staff.find(query);
+    if (staff.length === 0) {
+      return res.status(404).send({ error: "Staff not found" });
+    }
     res.send(staff);
   } catch {
     res.status(500).send({ error: "Server error" });
@@ -106,7 +104,7 @@ staffRouter.get("/staff/:id", async (req, res) => {
 /**
  * @swagger
  * /staff/{id}:
- *   put:
+ *   patch:
  *     summary: Update a staff member by ID
  *     tags:
  *       - Staff
@@ -126,7 +124,7 @@ staffRouter.get("/staff/:id", async (req, res) => {
  *       404:
  *         description: Staff not found
  */
-staffRouter.put("/staff/:id", async (req, res) => {
+staffRouter.patch("/staff/:id", async (req, res) => {
   try {
     const staff = await Staff.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -142,7 +140,7 @@ staffRouter.put("/staff/:id", async (req, res) => {
 /**
  * @swagger
  * /staff:
- *   put:
+ *   patch:
  *     summary: Update a staff member using query parameters
  *     tags:
  *       - Staff
@@ -158,7 +156,7 @@ staffRouter.put("/staff/:id", async (req, res) => {
  *       404:
  *         description: Staff not found
  */
-staffRouter.put("/staff", async (req, res) => {
+staffRouter.patch("/staff", async (req, res) => {
   try {
     const { collegiateNumber } = req.query;
     if (!collegiateNumber)

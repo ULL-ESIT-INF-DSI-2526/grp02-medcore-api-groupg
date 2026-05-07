@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc-watch --onSuccess \"node dist/server.js\"",
-    "test": "env-cmd -f ./config/dev.env vitest run",
+    "test": "env-cmd -f ./config/test.env vitest run",
     "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/server.js\"",
     "doc": "typedoc",
     "coverage": "vitest run --coverage"

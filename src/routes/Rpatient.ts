@@ -6,10 +6,6 @@ export const patientRouter = express.Router();
 export interface PatientQuery {
   fullName?: string;
   idNumber?: string;
-  socialSecurityNumber?: string;
-  gender?: "male" | "female" | "other";
-  bloodType?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "0+" | "0-";
-  status?: "active" | "inactive" | "deceased";
 }
 
 
@@ -91,11 +87,11 @@ patientRouter.get("/patients", async (req, res) => {
       if (fullName) query.fullName = fullName as string;
       if (idNumber) query.idNumber = idNumber as string;
       const patients = await Patient.find(query);
+      if (patients.length === 0) {
+      return res.status(404).send({ error: "Patient not found" });
+      }
       return res.send(patients);
     }
-
-    const patients = await Patient.find();
-    res.send(patients);
   } catch (error) {
     res.status(500).send({ error: "Server error" });
   }
@@ -140,7 +136,7 @@ patientRouter.get("/patients/:id", async (req, res) => {
 /**
  * @swagger
  * /patients/{id}:
- *   put:
+ *   patch:
  *     summary: Update a patient by ID
  *     tags:
  *       - Patients
@@ -164,7 +160,7 @@ patientRouter.get("/patients/:id", async (req, res) => {
  *       400:
  *         description: Invalid data
  */
-patientRouter.put("/patients/:id", async (req, res) => {
+patientRouter.patch("/patients/:id", async (req, res) => {
   try {
     const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -180,7 +176,7 @@ patientRouter.put("/patients/:id", async (req, res) => {
 /**
  * @swagger
  * /patients:
- *   put:
+ *   patch:
  *     summary: Update a patient using query parameters
  *     tags:
  *       - Patients
@@ -205,7 +201,7 @@ patientRouter.put("/patients/:id", async (req, res) => {
  *       400:
  *         description: Missing or invalid query parameter
  */
-patientRouter.put("/patients", async (req, res) => {
+patientRouter.patch("/patients", async (req, res) => {
   try {
     const { idNumber } = req.query;
     if (!idNumber) return res.status(400).send({ error: "idNumber query required" });
