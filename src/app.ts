@@ -1,18 +1,18 @@
-import express from 'express'
-import './db/mongoose.js'
-import patientRouter from './routes/Rpatient.js' 
-import staffRouter from './routes/Rstaff.js'
+import express from "express";
+import "./db/mongoose.js";
+import { patientRouter } from "./routes/Rpatient.js";
+import { staffRouter } from "./routes/Rstaff.js";
+import { defaultRouter } from "./routes/default.js";
 
-export const app = express()
-app.use(express.json())
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
 
-app.use('/patients', patientRouter)
-app.use('/staff', staffRouter)
+export const app = express();
+app.use(express.json());
 
-/**
- * Manejador para rutas no implementadas
- * Devuelve un estado 501 
- */
-app.all('/{*splat}', (_, res) => {
-  res.status(501).send()
-})
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
+app.use(patientRouter);
+app.use(staffRouter);
+app.use(defaultRouter);
