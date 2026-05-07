@@ -222,7 +222,7 @@ recordRouter.get("/records/:id", async (req, res) => {
  *       409:
  *         description: Stock insufficient or medication expired
  */
-recordRouter.put("/records/:id", async (req, res) => {
+recordRouter.patch("/records/:id", async (req, res) => {
   try {
     const record = await Record.findById(req.params.id);
     if (!record) return res.status(404).send({ error: "Record not found" });
@@ -240,6 +240,7 @@ recordRouter.put("/records/:id", async (req, res) => {
     let newMedications = record.medications;
     let totalAmount = record.totalAmount;
 
+    // Si el usuario envía medicamentos, recalculamos todo
     if (Array.isArray(medications)) {
       newMedications = [];
       totalAmount = 0;
@@ -253,9 +254,7 @@ recordRouter.put("/records/:id", async (req, res) => {
           return res.status(409).send({ error: `Medication ${nationalCode} expired` });
 
         if (med.stock < quantity)
-          return res
-            .status(409)
-            .send({ error: `Insufficient stock for medication ${nationalCode}` });
+          return res.status(409).send({ error: `Insufficient stock for medication ${nationalCode}` });
 
         med.stock -= quantity;
         await med.save();
@@ -273,6 +272,7 @@ recordRouter.put("/records/:id", async (req, res) => {
     res.status(500).send({ error: "Server error", details: error });
   }
 });
+
 
 /**
  * @swagger
