@@ -133,7 +133,7 @@ medicationRouter.get("/medications/:id", async (req, res) => {
 *       404:
 *         description: Medication not found
 */
-medicationRouter.put("/medications/:id", async (req, res) => {
+medicationRouter.patch("/medications/:id", async (req, res) => {
  try {
    const med = await Medication.findByIdAndUpdate(req.params.id, req.body, {
      new: true,
@@ -166,7 +166,7 @@ medicationRouter.put("/medications/:id", async (req, res) => {
 *       404:
 *         description: Medication not found
 */
-medicationRouter.put("/medications", async (req, res) => {
+medicationRouter.patch("/medications", async (req, res) => {
  try {
    const { nationalCode } = req.query;
    if (!nationalCode)
