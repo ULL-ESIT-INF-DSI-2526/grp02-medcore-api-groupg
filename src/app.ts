@@ -3,9 +3,9 @@ import "./db/mongoose.js";
 
 
 import { medicationRouter } from "./routes/medication.js";
-import { defaultRouter } from "./routes/default.js";
 import { patientRouter } from "./routes/patient.js";
 import { staffRouter } from "./routes/staff.js"
+import { defaultRouter } from "./routes/default.js";
 
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
@@ -19,8 +19,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 app.use(medicationRouter);
-app.use(defaultRouter);
 app.use(patientRouter);
 app.use(staffRouter);
-
+app.use(defaultRouter);
 
