@@ -24,8 +24,10 @@ beforeEach(async () => {
 });
 
 describe("Operaciones CRUD para /patients", () => {
-
-  test("Debe crear un nuevo paciente correctamente", async () => {
+  /**
+   * Test de creacion exitosa
+   */
+  test("Should successfully create a new patient", async () => {
     const newPatient = {
       fullName: "Maria Garcia",
       birthDate: "1985-10-20T00:00:00.000Z",
@@ -46,45 +48,79 @@ describe("Operaciones CRUD para /patients", () => {
       .send(newPatient)
       .expect(201);
 
-    expect(response.body).to.include({
-      fullName: "Maria Garcia",
-      idNumber: "87654321B"
-    });
-
-    const patientInDb = await Patient.findById(response.body._id);
-    expect(patientInDb).not.toBe(null);
+    expect(response.body.fullName).toBe("Maria Garcia");
+    
+    const dbCheck = await Patient.findOne({ idNumber: "87654321B" });
+    expect(dbCheck).not.toBeNull();
   });
 
-  test("Debe obtener un paciente mediante su idNumber", async () => {
+  /**
+   * Test de lectura por query string
+   */
+  test("Should get a patient by idNumber query", async () => {
     const response = await request(app)
       .get("/patients?idNumber=12345678A")
       .expect(200);
 
-    expect(response.body[0].fullName).to.equal("Juan Pérez");
+    expect(response.body[0].fullName).toBe("Juan Pérez");
   });
 
-  test("Debe devolver 404 si el paciente buscado por query no existe", async () => {
+  /**
+   * Test de error 404
+   */
+  test("Should return 404 if patient is not found by query", async () => {
     await request(app)
       .get("/patients?idNumber=NONEXISTENT")
       .expect(404);
   });
 
-  test("Debe actualizar un paciente mediante idNumber en la query", async () => {
+  /**
+   * Test de actualizacion por ID
+   */
+  test("Should update a patient by database ID", async () => {
+    const existing = await Patient.findOne({ idNumber: "12345678A" });
     const response = await request(app)
-      .patch("/patients?idNumber=12345678A")
-      .send({ fullName: "Juan Pérez Modificado" })
+      .patch(`/patients/${existing!._id}`)
+      .send({ fullName: "Juan Pérez Actualizado" })
       .expect(200);
 
-    expect(response.body.fullName).to.equal("Juan Pérez Modificado");
+    expect(response.body.fullName).toBe("Juan Pérez Actualizado");
   });
 
-  test("Debe eliminar un paciente por su identificador unico de base de datos", async () => {
+  /**
+   * Test de actualizacion por query string
+   */
+  test("Should update a patient by idNumber query", async () => {
+    const response = await request(app)
+      .patch("/patients?idNumber=12345678A")
+      .send({ status: "inactive" })
+      .expect(200);
+
+    expect(response.body.status).toBe("inactive");
+  });
+
+  /**
+   * Test de borrado por ID
+   */
+  test("Should delete a patient by database ID", async () => {
     const existing = await Patient.findOne({ idNumber: "12345678A" });
     await request(app)
       .delete(`/patients/${existing!._id}`)
       .expect(200);
 
-    const checkDb = await Patient.findById(existing!._id);
-    expect(checkDb).toBe(null);
+    const dbCheck = await Patient.findById(existing!._id);
+    expect(dbCheck).toBeNull();
+  });
+
+  /**
+   * Test de borrado por query string
+   */
+  test("Should delete a patient by idNumber query", async () => {
+    await request(app)
+      .delete("/patients?idNumber=12345678A")
+      .expect(200);
+
+    const dbCheck = await Patient.findOne({ idNumber: "12345678A" });
+    expect(dbCheck).toBeNull();
   });
 });
