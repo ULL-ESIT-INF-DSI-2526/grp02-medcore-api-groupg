@@ -81,17 +81,14 @@ patientRouter.post("/patients", async (req, res) => {
 patientRouter.get("/patients", async (req, res) => {
   try {
     const { fullName, idNumber } = req.query;
-
-    if (fullName || idNumber) {
-      const query: PatientQuery = {};
-      if (fullName) query.fullName = fullName as string;
-      if (idNumber) query.idNumber = idNumber as string;
-      const patients = await Patient.find(query);
-      if (patients.length === 0) {
+    const query: PatientQuery = {};
+    if (fullName) query.fullName = fullName as string;
+    if (idNumber) query.idNumber = idNumber as string;
+    const patients = await Patient.find(query);
+    if ((fullName || idNumber) && patients.length === 0) {
       return res.status(404).send({ error: "Patient not found" });
-      }
-      return res.send(patients);
     }
+    res.send(patients);
   } catch (error) {
     res.status(500).send({ error: "Server error" });
   }
