@@ -65,8 +65,8 @@ staffRouter.get("/staff", async (req, res) => {
     if (fullName) query.fullName = fullName as string;
     if (specialty) query.specialty = specialty as StaffQuery['specialty'];
     const staff = await Staff.find(query);
-    if (staff.length === 0) {
-      return res.status(404).send({ error: "Staff not found" });
+    if ((fullName || specialty) && staff.length === 0) {
+      return res.status(404).send({ error: 'Staff not found' });
     }
     res.send(staff);
   } catch {
