@@ -3,9 +3,6 @@ import request from "supertest";
 import { app } from "../src/app.js";
 import { Staff } from "../src/models/staff.js";
 
-/**
- * Datos iniciales para las pruebas de personal
- */
 const firstStaff = {
   fullName: "Dra. Ana Garcia",
   collegiateNumber: "COL1234",
@@ -18,133 +15,119 @@ const firstStaff = {
   status: "active"
 };
 
-/**
- * Limpieza y preparacion de la base de datos antes de cada test
- */
+const nonExistentId = "661f1f5c9a7b4b001e3f1234";
+
 beforeEach(async () => {
   await Staff.deleteMany();
   await new Staff(firstStaff).save();
 });
 
-describe("Operaciones CRUD para /staff", () => {
-  /**
-   * Test de creacion exitosa mediante POST
-   */
-  test("Should successfully register a new staff member", async () => {
-    const newStaff = {
-      fullName: "Dr. Gregory House",
-      collegiateNumber: "COL5678",
-      specialty: "emergency",
-      category: "head_of_service",
-      shift: "night",
-      assignedConsultation: "ICU",
-      departmentContact: "ext-999",
-      yearsOfExperience: 20,
-      status: "active"
-    };
+describe("Operaciones CRUD completas para /staff", () => {
 
-    const response = await request(app)
-      .post("/staff")
-      .send(newStaff)
-      .expect(201);
-
-    expect(response.body.collegiateNumber).toBe("COL5678");
-    
-    const dbCheck = await Staff.findOne({ collegiateNumber: "COL5678" });
-    expect(dbCheck).not.toBeNull();
+  test("Debe registrar un nuevo miembro del personal correctamente (201)", async () => {
+    const newStaff = { ...firstStaff, collegiateNumber: "COL-NUEVO-001" };
+    const response = await request(app).post("/staff").send(newStaff).expect(201);
+    expect(response.body.collegiateNumber).toBe("COL-NUEVO-001");
   });
 
-  /**
-   * Test de lectura por numero de colegiado en query string
-   */
-  test("Should get a staff member by collegiateNumber query", async () => {
-    const response = await request(app)
-      .get("/staff?collegiateNumber=COL1234")
+  test("Debe devolver 400 si los datos del staff son invalidos (Error de validacion)", async () => {
+    await request(app).post("/staff").send({}).expect(400);
+  });
+
+  test("Debe listar todo el personal cuando no se proporciona query (200)", async () => {
+    const res = await request(app).get("/staff").expect(200);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  test("Debe obtener un miembro por filtro de especialidad (200)", async () => {
+    const res = await request(app).get("/staff?specialty=cardiology").expect(200);
+    expect(res.body[0].collegiateNumber).toBe("COL1234");
+  });
+
+  test("Debe devolver 404 si el filtro de busqueda no encuentra resultados", async () => {
+    await request(app).get("/staff?specialty=oncology").expect(404);
+  });
+
+  test("Debe obtener un miembro por su ID de base de datos (200)", async () => {
+    const s = await Staff.findOne();
+    await request(app).get(`/staff/${s!._id}`).expect(200);
+  });
+
+  test("Debe devolver 404 si el ID tiene formato correcto pero no existe", async () => {
+    await request(app).get(`/staff/${nonExistentId}`).expect(404);
+  });
+
+  test("Debe devolver 400 si el formato del ID es incorrecto (Bloque catch)", async () => {
+    await request(app).get("/staff/id-no-valido-123").expect(400);
+  });
+
+  test("Debe actualizar un miembro por su ID de base de datos (200)", async () => {
+    const s = await Staff.findOne();
+    const res = await request(app)
+      .patch(`/staff/${s!._id}`)
+      .send({ shift: "afternoon" })
       .expect(200);
-
-    // find() devuelve un array, verificamos la primera posicion
-    expect(response.body[0].fullName).toBe("Dra. Ana Garcia");
+    expect(res.body.shift).toBe("afternoon");
   });
 
-  /**
-   * Test de lectura por nombre en query string
-   */
-  test("Should get a staff member by fullName query", async () => {
-    const response = await request(app)
-      .get("/staff?fullName=Dra. Ana Garcia")
-      .expect(200);
-
-    expect(response.body[0].collegiateNumber).toBe("COL1234");
-  });
-
-/**
-   * Test de error 404 al no encontrar resultados por nombre
-   */
-  test("Should return 404 if staff member is not found by query", async () => {
+  test("Debe devolver 404 al intentar actualizar un ID que no existe", async () => {
     await request(app)
-      .get("/staff?fullName=NONEXISTENT_NAME")
+      .patch(`/staff/${nonExistentId}`)
+      .send({ shift: "night" })
       .expect(404);
   });
 
-  /**
-   * Test de lectura por ID dinamico de MongoDB
-   */
-  test("Should get a staff member by database ID", async () => {
-    const existing = await Staff.findOne({ collegiateNumber: "COL1234" });
-    const response = await request(app)
-      .get(`/staff/${existing!._id}`)
-      .expect(200);
-
-    expect(response.body.collegiateNumber).toBe("COL1234");
+  test("Debe devolver 400 si los datos de actualizacion son invalidos (Error de validacion)", async () => {
+    const s = await Staff.findOne();
+    await request(app)
+      .patch(`/staff/${s!._id}`)
+      .send({ status: "ESTADO_INVENTADO" })
+      .expect(400);
   });
 
-  /**
-   * Test de actualizacion mediante ID de base de datos
-   */
-  test("Should update a staff member by database ID", async () => {
-    const existing = await Staff.findOne({ collegiateNumber: "COL1234" });
-    const response = await request(app)
-      .patch(`/staff/${existing!._id}`)
-      .send({ shift: "afternoon" })
-      .expect(200);
-
-    expect(response.body.shift).toBe("afternoon");
-  });
-
-  /**
-   * Test de actualizacion mediante query string
-   */
-  test("Should update a staff member by collegiateNumber query", async () => {
-    const response = await request(app)
+  test("Debe actualizar un miembro mediante query de collegiateNumber (200)", async () => {
+    const res = await request(app)
       .patch("/staff?collegiateNumber=COL1234")
-      .send({ assignedConsultation: "Room 202" })
+      .send({ assignedConsultation: "Room 999" })
       .expect(200);
-
-    expect(response.body.assignedConsultation).toBe("Room 202");
+    expect(res.body.assignedConsultation).toBe("Room 999");
   });
 
-  /**
-   * Test de borrado mediante ID de base de datos
-   */
-  test("Should delete a staff member by database ID", async () => {
-    const existing = await Staff.findOne({ collegiateNumber: "COL1234" });
-    await request(app)
-      .delete(`/staff/${existing!._id}`)
-      .expect(200);
-
-    const dbCheck = await Staff.findById(existing!._id);
-    expect(dbCheck).toBeNull();
+  test("Debe devolver 400 si falta el parámetro collegiateNumber en la query de PATCH", async () => {
+    await request(app).patch("/staff").send({ shift: "morning" }).expect(400);
   });
 
-  /**
-   * Test de borrado mediante query string
-   */
-  test("Should delete a staff member by collegiateNumber query", async () => {
+  test("Debe devolver 404 si el colegiado para actualizar no existe", async () => {
     await request(app)
-      .delete("/staff?collegiateNumber=COL1234")
-      .expect(200);
+      .patch("/staff?collegiateNumber=NO-EXISTE")
+      .send({ shift: "morning" })
+      .expect(404);
+  });
 
-    const dbCheck = await Staff.findOne({ collegiateNumber: "COL1234" });
-    expect(dbCheck).toBeNull();
+  test("Debe borrar un miembro por su ID de base de datos (200)", async () => {
+    const s = await Staff.findOne();
+    await request(app).delete(`/staff/${s!._id}`).expect(200);
+  });
+
+  test("Debe devolver 404 al intentar borrar un ID que no existe", async () => {
+    await request(app).delete(`/staff/${nonExistentId}`).expect(404);
+  });
+
+  test("Debe devolver 400 al intentar borrar un ID malformado", async () => {
+    await request(app).delete("/staff/mal-formato-id").expect(400);
+  });
+
+  test("Debe borrar un miembro mediante query de collegiateNumber (200)", async () => {
+    await request(app).delete("/staff?collegiateNumber=COL1234").expect(200);
+    const check = await Staff.findOne({ collegiateNumber: "COL1234" });
+    expect(check).toBeNull();
+  });
+
+  test("Debe devolver 400 si falta el parámetro collegiateNumber en la query de DELETE", async () => {
+    await request(app).delete("/staff").expect(400);
+  });
+
+  test("Debe devolver 404 si el colegiado para borrar no existe", async () => {
+    await request(app).delete("/staff?collegiateNumber=COL-FANTASMA").expect(404);
   });
 });
