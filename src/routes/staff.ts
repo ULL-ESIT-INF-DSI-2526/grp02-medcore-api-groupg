@@ -1,5 +1,7 @@
 import express from "express";
 import { Staff, IStaff } from "../models/staff.js";
+import { Record } from "../models/record.js";
+import { Medication } from "../models/medication.js";
 
 export const staffRouter = express.Router();
 
@@ -8,6 +10,23 @@ export interface StaffQuery {
   specialty?: IStaff['specialty'];
 }
 
+async function cascadeDeleteStaff(staffId: string) {
+  const records = await Record.find({ doctor: staffId });
+
+  for (const r of records) {
+    for (const item of r.medications) {
+      const med = await Medication.findById(item.medication);
+      if (med) {
+        med.stock += item.quantity;
+        await med.save();
+      }
+    }
+
+    await Record.findByIdAndDelete(r._id);
+  }
+
+  await Staff.findByIdAndDelete(staffId);
+}
 
 /**
  * @swagger
@@ -192,13 +211,17 @@ staffRouter.patch("/staff", async (req, res) => {
  */
 staffRouter.delete("/staff/:id", async (req, res) => {
   try {
-    const staff = await Staff.findByIdAndDelete(req.params.id);
+    const staff = await Staff.findById(req.params.id);
     if (!staff) return res.status(404).send({ error: "Staff not found" });
-    res.send({ message: "Staff deleted" });
+
+    await cascadeDeleteStaff(staff._id.toString());
+
+    res.send({ message: "Staff and related records deleted" });
   } catch {
     res.status(400).send({ error: "Invalid ID" });
   }
 });
+
 
 /**
  * @swagger
@@ -223,9 +246,12 @@ staffRouter.delete("/staff", async (req, res) => {
     if (!collegiateNumber)
       return res.status(400).send({ error: "collegiateNumber query required" });
 
-    const staff = await Staff.findOneAndDelete({ collegiateNumber: collegiateNumber as string });
+    const staff = await Staff.findOne({ collegiateNumber: collegiateNumber as string });
     if (!staff) return res.status(404).send({ error: "Staff not found" });
-    res.send({ message: "Staff deleted" });
+
+    await cascadeDeleteStaff(staff._id.toString());
+
+    res.send({ message: "Staff and related records deleted" });
   } catch {
     res.status(500).send({ error: "Server error" });
   }

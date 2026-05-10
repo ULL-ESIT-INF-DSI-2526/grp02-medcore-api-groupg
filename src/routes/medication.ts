@@ -1,5 +1,6 @@
 import express from "express";
 import { Medication } from "../models/medication.js";
+import { Record } from "../models/record.js";
 
 
 export const medicationRouter = express.Router();
@@ -12,6 +13,16 @@ export interface MedicationQuery {
  form?: string;
  route?: string;
  requiresPrescription?: boolean;
+}
+
+async function cascadeDeleteMedication(medId: string) {
+  const records = await Record.find({ "medications.medication": medId });
+
+  for (const r of records) {
+    await Record.findByIdAndDelete(r._id);
+  }
+
+  await Medication.findByIdAndDelete(medId);
 }
 
 
@@ -203,18 +214,18 @@ medicationRouter.patch("/medications", async (req, res) => {
 *         description: Medication not found
 */
 medicationRouter.delete("/medications/:id", async (req, res) => {
- try {
-   const med = await Medication.findById(req.params.id);
-   if (!med) return res.status(404).send({ error: "Medication not found" });
+  try {
+    const med = await Medication.findById(req.params.id);
+    if (!med) return res.status(404).send({ error: "Medication not found" });
 
+    await cascadeDeleteMedication(med._id.toString());
 
-   // Aquí podrías comprobar si está referenciado en records antes de borrar.
-   await med.deleteOne();
-   res.send({ message: "Medication deleted" });
- } catch {
-   res.status(400).send({ error: "Invalid ID" });
- }
+    res.send({ message: "Medication and related records deleted" });
+  } catch {
+    res.status(400).send({ error: "Invalid ID" });
+  }
 });
+
 
 
 /**
@@ -235,20 +246,19 @@ medicationRouter.delete("/medications/:id", async (req, res) => {
 *         description: Medication not found
 */
 medicationRouter.delete("/medications", async (req, res) => {
- try {
-   const { nationalCode } = req.query;
-   if (!nationalCode)
-     return res.status(400).send({ error: "nationalCode query required" });
+  try {
+    const { nationalCode } = req.query;
+    if (!nationalCode)
+      return res.status(400).send({ error: "nationalCode query required" });
 
+    const med = await Medication.findOne({ nationalCode: nationalCode as string });
+    if (!med) return res.status(404).send({ error: "Medication not found" });
 
-   const med = await Medication.findOne({ nationalCode: nationalCode as string });
-   if (!med) return res.status(404).send({ error: "Medication not found" });
+    await cascadeDeleteMedication(med._id.toString());
 
-
-   // Igual que arriba: aquí justificarías la política de borrado.
-   await med.deleteOne();
-   res.send({ message: "Medication deleted" });
- } catch {
-   res.status(500).send({ error: "Server error" });
- }
+    res.send({ message: "Medication and related records deleted" });
+  } catch {
+    res.status(500).send({ error: "Server error" });
+  }
 });
+

@@ -1,5 +1,7 @@
 import express from "express";
 import { Patient } from "../models/patient.js";
+import { Record } from "../models/record.js";
+import { Medication } from "../models/medication.js";
 
 export const patientRouter = express.Router();
 
@@ -7,6 +9,26 @@ export interface PatientQuery {
   fullName?: string;
   idNumber?: string;
 }
+
+async function cascadeDeletePatient(patientId: string) {
+
+  const records = await Record.find({ patient: patientId });
+
+  for (const r of records) {
+    for (const item of r.medications) {
+      const med = await Medication.findById(item.medication);
+      if (med) {
+        med.stock += item.quantity;
+        await med.save();
+      }
+    }
+
+    await Record.findByIdAndDelete(r._id);
+  }
+
+  await Patient.findByIdAndDelete(patientId);
+}
+
 
 
 /**
@@ -237,13 +259,17 @@ patientRouter.patch("/patients", async (req, res) => {
  */
 patientRouter.delete("/patients/:id", async (req, res) => {
   try {
-    const patient = await Patient.findByIdAndDelete(req.params.id);
+    const patient = await Patient.findById(req.params.id);
     if (!patient) return res.status(404).send({ error: "Patient not found" });
-    res.send({ message: "Patient deleted" });
+
+    await cascadeDeletePatient(patient._id.toString());
+
+    res.send({ message: "Patient and related records deleted" });
   } catch {
     res.status(400).send({ error: "Invalid ID" });
   }
 });
+
 
 /**
  * @swagger
@@ -272,9 +298,12 @@ patientRouter.delete("/patients", async (req, res) => {
     const { idNumber } = req.query;
     if (!idNumber) return res.status(400).send({ error: "idNumber query required" });
 
-    const patient = await Patient.findOneAndDelete({ idNumber: idNumber as string });
+    const patient = await Patient.findOne({ idNumber: idNumber as string });
     if (!patient) return res.status(404).send({ error: "Patient not found" });
-    res.send({ message: "Patient deleted" });
+
+    await cascadeDeletePatient(patient._id.toString());
+
+    res.send({ message: "Patient and related records deleted" });
   } catch {
     res.status(500).send({ error: "Server error" });
   }
