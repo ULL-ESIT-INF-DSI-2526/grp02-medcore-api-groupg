@@ -2,7 +2,7 @@ import { Schema, model, Document } from "mongoose";
 
 /**
  * @interface IStaff
- * @description Reprecenta un trabajador almacenado en la base de datos.
+ * Reprecenta un trabajador almacenado en la base de datos.
  */
 export interface IStaff extends Document {
   fullName: string;

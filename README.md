@@ -29,7 +29,7 @@ npm install
 
 ## Modo de empleo
 
-### Asegurate de tener Mongodb corriendo en tu máquina local
+### Asegurarse de tener Mongodb corriendo en su máquina local
 
 ```bash
 sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongo-data/
@@ -40,8 +40,11 @@ sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongo-data/
 ```bash
 npm run dev
 ```
+Tras esto se realizaran las consultas sobre http://localhost:3000
 
 ### Ejecutar tests
+
+(También asegurarse de tener Mongodb corriendo en su máquina local)
 
 ```bash
 npm test

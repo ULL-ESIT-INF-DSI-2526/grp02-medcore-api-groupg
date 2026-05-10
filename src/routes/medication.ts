@@ -128,7 +128,7 @@ medicationRouter.get("/medications/:id", async (req, res) => {
 /**
 * @swagger
 * /medications/{id}:
-*   put:
+*   patch:
 *     summary: Update a medication by ID
 *     tags:
 *       - Medications
@@ -161,7 +161,7 @@ medicationRouter.patch("/medications/:id", async (req, res) => {
 /**
 * @swagger
 * /medications:
-*   put:
+*   patch:
 *     summary: Update a medication using query parameters
 *     tags:
 *       - Medications

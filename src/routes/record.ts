@@ -225,7 +225,7 @@ recordRouter.get("/records/:id", async (req, res) => {
 /**
 * @swagger
 * /records/{id}:
-*   put:
+*   patch:
 *     summary: Update a medical record by ID
 *     tags:
 *       - Records

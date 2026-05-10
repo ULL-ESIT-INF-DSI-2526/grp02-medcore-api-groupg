@@ -2,7 +2,7 @@ import { Schema, model, Document } from "mongoose";
 
 /**
  * @interface IPatient
- * @description Representa un paciente almacenado en la base de datos.
+ * Representa un paciente almacenado en la base de datos.
  */
 export interface IPatient extends Document {
   fullName: string;
