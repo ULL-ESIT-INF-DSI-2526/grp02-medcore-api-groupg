@@ -137,7 +137,7 @@ async function createRecord() {
   });
 }
 
-describe.sequential("Operaciones CRUD para /records", () => {
+describe.sequential("CRUD /records (tests ampliados)", () => {
 
   beforeEach(async () => {
     await Record.deleteMany({});
@@ -152,7 +152,13 @@ describe.sequential("Operaciones CRUD para /records", () => {
     await createRecord();
   });
 
-  test("Debe devolver registros filtrando por idNumber del paciente", async () => {
+
+  test("GET /records debe devolver todos los registros si no hay filtros", async () => {
+    const res = await request(app).get("/records").expect(200);
+    expect(res.body.length).toBe(1);
+  });
+
+  test("GET /records debe devolver registros filtrando por idNumber", async () => {
     const res = await request(app)
       .get(`/records?idNumber=${patientDoc.idNumber}`)
       .expect(200);
@@ -160,7 +166,13 @@ describe.sequential("Operaciones CRUD para /records", () => {
     expect(res.body.length).toBe(1);
   });
 
-  test("Debe devolver un registro especifico por su ID", async () => {
+  test("GET /records debe devolver 404 si el paciente no existe", async () => {
+    await request(app)
+      .get("/records?idNumber=NO_EXISTE")
+      .expect(404);
+  });
+
+  test("GET /records/:id debe devolver un registro por ID", async () => {
     const list = await request(app)
       .get(`/records?idNumber=${patientDoc.idNumber}`)
       .expect(200);
@@ -174,8 +186,21 @@ describe.sequential("Operaciones CRUD para /records", () => {
     expect(res.body.diagnosis).toBe("Migraña");
   });
 
-  test("Debe crear un registro correctamente y descontar stock", async () => {
-    const res = await request(app)
+  test("GET /records/:id debe devolver 404 si no existe", async () => {
+    await request(app)
+      .get("/records/000000000000000000000000")
+      .expect(404);
+  });
+
+  test("GET /records/:id debe devolver 400 si el ID es inválido", async () => {
+    await request(app)
+      .get("/records/INVALIDO")
+      .expect(400);
+  });
+
+
+  test("POST debe crear un registro y descontar stock", async () => {
+    await request(app)
       .post("/records")
       .send({
         patientIdNumber: patientDoc.idNumber,
@@ -190,11 +215,107 @@ describe.sequential("Operaciones CRUD para /records", () => {
       .expect(201);
 
     const updatedMed = await Medication.findOne({ nationalCode: medDoc.nationalCode });
-
     expect(updatedMed!.stock).toBe(8);
   });
 
-  test("Debe eliminar un registro y restaurar el stock de los medicamentos", async () => {
+  test("POST debe fallar si el paciente no existe", async () => {
+    await request(app)
+      .post("/records")
+      .send({
+        patientIdNumber: "NO_EXISTE",
+        doctorCollegiateNumber: doctorDoc.collegiateNumber,
+        type: "consulta",
+        reason: "test",
+        diagnosis: "test",
+        medications: []
+      })
+      .expect(404);
+  });
+
+  test("POST debe fallar si el doctor no existe", async () => {
+    await request(app)
+      .post("/records")
+      .send({
+        patientIdNumber: patientDoc.idNumber,
+        doctorCollegiateNumber: "NO_EXISTE",
+        type: "consulta",
+        reason: "test",
+        diagnosis: "test",
+        medications: []
+      })
+      .expect(404);
+  });
+
+  test("POST debe fallar si medications no es un array", async () => {
+    await request(app)
+      .post("/records")
+      .send({
+        patientIdNumber: patientDoc.idNumber,
+        doctorCollegiateNumber: doctorDoc.collegiateNumber,
+        type: "consulta",
+        reason: "test",
+        diagnosis: "test",
+        medications: "NO_ARRAY"
+      })
+      .expect(400);
+  });
+
+  test("POST debe fallar si el medicamento no existe", async () => {
+    await request(app)
+      .post("/records")
+      .send({
+        patientIdNumber: patientDoc.idNumber,
+        doctorCollegiateNumber: doctorDoc.collegiateNumber,
+        type: "consulta",
+        reason: "test",
+        diagnosis: "test",
+        medications: [
+          { nationalCode: "NO_EXISTE", quantity: 1, posology: "test" }
+        ]
+      })
+      .expect(404);
+  });
+
+  test("POST debe fallar si el medicamento está caducado", async () => {
+    const expired = await Medication.create({
+      ...baseMedication,
+      nationalCode: "EXPIRED",
+      expirationDate: "2000-01-01T00:00:00.000Z"
+    });
+
+    await request(app)
+      .post("/records")
+      .send({
+        patientIdNumber: patientDoc.idNumber,
+        doctorCollegiateNumber: doctorDoc.collegiateNumber,
+        type: "consulta",
+        reason: "test",
+        diagnosis: "test",
+        medications: [
+          { nationalCode: expired.nationalCode, quantity: 1, posology: "test" }
+        ]
+      })
+      .expect(409);
+  });
+
+  test("POST debe fallar si no hay stock suficiente", async () => {
+    await request(app)
+      .post("/records")
+      .send({
+        patientIdNumber: patientDoc.idNumber,
+        doctorCollegiateNumber: doctorDoc.collegiateNumber,
+        type: "consulta",
+        reason: "test",
+        diagnosis: "test",
+        medications: [
+          { nationalCode: medDoc.nationalCode, quantity: 999, posology: "test" }
+        ]
+      })
+      .expect(409);
+  });
+
+
+  test("DELETE debe eliminar un registro y restaurar stock", async () => {
     const list = await request(app)
       .get(`/records?idNumber=${patientDoc.idNumber}`)
       .expect(200);
@@ -206,7 +327,18 @@ describe.sequential("Operaciones CRUD para /records", () => {
       .expect(200);
 
     const restoredMed = await Medication.findOne({ nationalCode: medDoc.nationalCode });
-
     expect(restoredMed!.stock).toBe(11);
+  });
+
+  test("DELETE debe devolver 404 si no existe", async () => {
+    await request(app)
+      .delete("/records/000000000000000000000000")
+      .expect(404);
+  });
+
+  test("DELETE debe devolver 400 si el ID es inválido", async () => {
+    await request(app)
+      .delete("/records/INVALIDO")
+      .expect(400);
   });
 });
