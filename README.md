@@ -29,6 +29,12 @@ npm install
 
 ## Modo de empleo
 
+### Asegurate de tener Mongodb corriendo en tu máquina local
+
+```bash
+sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongo-data/
+```
+
 ### Iniciar la API en modo desarrollo
 
 ```bash
