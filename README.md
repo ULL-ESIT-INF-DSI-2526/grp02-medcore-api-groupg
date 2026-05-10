@@ -1,5 +1,5 @@
 [![CI Tests](https://github.com/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-groupg/actions/workflows/ci.yml/badge.svg)](https://github.com/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-groupg/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-groupg/badge.svg?branch=develop)](https://coveralls.io/github/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-groupg?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/github/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-groupg/badge.svg?branch=main)](https://coveralls.io/github/ULL-ESIT-INF-DSI-2526/grp02-medcore-api-groupg?branch=main)
 
 # MedCore API
 
